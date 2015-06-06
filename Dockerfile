@@ -35,4 +35,5 @@ EXPOSE 10011
 EXPOSE 30033
 
 VOLUME ["/data"]
-CMD    ["/start"]
+
+ENTRYPOINT ["/start"]
