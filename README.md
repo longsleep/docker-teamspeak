@@ -44,6 +44,10 @@ stop on stopping docker
 
 respawn
 
+pre-start script
+docker rm teamspeak >/dev/null 2>&1 || true
+end script
+
 script
 exec docker run \
 	--rm=true \
