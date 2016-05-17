@@ -26,6 +26,16 @@ then
     ln -s /data/ts3server.sqlitedb /opt/teamspeak/ts3server.sqlitedb
 fi
 
+if [ ! -f /opt/teamspeak/serverkey.dat ] && [ -f /data/license/serverkey.dat ]
+then
+    ln -s /data/license/serverkey.dat /opt/teamspeak/serverkey.dat
+fi
+
+if [ ! -f /opt/teamspeak/licensekey.dat ] && [ -f /data/license/licensekey.dat ]
+then
+    ln -s /data/license/licensekey.dat /opt/teamspeak/licensekey.dat
+fi
+
 USER_ID=${LOCAL_USER_ID:-9001}
 
 echo "Starting with UID : $USER_ID"
