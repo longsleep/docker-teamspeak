@@ -21,6 +21,7 @@ ENV    DEBIAN_FRONTEND noninteractive
 # Download and install everything from the repos.
 RUN    apt-get --yes update; apt-get --yes upgrade
 RUN    apt-get --yes install curl
+RUN    apt-get --yes install bzip2
 
 # Download and install TeamSpeak 3
 RUN    curl "http://dl.4players.de/ts/releases/${TS_VERSION}/teamspeak3-server_linux-amd64-${TS_VERSION}.tar.bz2" -o /opt/teamspeak3-server_linux-amd64-${TS_VERSION}.tar.bz2
