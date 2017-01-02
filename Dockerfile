@@ -24,7 +24,7 @@ RUN    apt-get --yes install curl
 RUN    apt-get --yes install bzip2
 
 # Download and install TeamSpeak 3
-RUN    curl "http://dl.4players.de/ts/releases/${TS_VERSION}/teamspeak3-server_linux-amd64-${TS_VERSION}.tar.bz2" -o /opt/teamspeak3-server_linux-amd64-${TS_VERSION}.tar.bz2
+RUN    curl "http://dl.4players.de/ts/releases/${TS_VERSION}/teamspeak3-server_linux_amd64-${TS_VERSION}.tar.bz2" -o /opt/teamspeak3-server_linux-amd64-${TS_VERSION}.tar.bz2
 RUN    cd /opt && tar -jxvf teamspeak3-server_linux-amd64-${TS_VERSION}.tar.bz2 && mv teamspeak3-server_linux-amd64 teamspeak && chown -R root.root /opt/teamspeak && rm teamspeak3-server_linux-amd64-${TS_VERSION}.tar.bz2
 
 # Load in all of our config files.
