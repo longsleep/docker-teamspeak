@@ -13,7 +13,7 @@
 FROM   ubuntu:14.04
 
 # Teamspeak version to download.
-ENV    TS_VERSION 3.0.11.4
+ENV    TS_VERSION 3.0.13.6
 
 # Make sure we don't get notifications we can't answer during building.
 ENV    DEBIAN_FRONTEND noninteractive
