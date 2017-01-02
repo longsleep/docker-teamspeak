@@ -22,10 +22,12 @@ docker-teamspeak and TeamSpeak itself.
 Running the first time will set your port to a static port of your choice so
 that you can easily map a proxy to. If this is the only thing running on your
 system you can map the ports to 9987, 10011, 30033 and no proxy is needed. i.e.
-`-p=9987:9987/udp  -p=10011:10011 -p=30033:30033` Also be sure your mounted
-directory on your host machine is already created before (`mkdir -p /srv/teamspeak`).
+`-p=9987:9987/udp -p=10011:10011 -p=30033:30033` Also be sure your mounted
+directory on your host machine is already created before and has the correct
+permissions. The docker container uses user ID 9001 by default to access/write
+the logs and the database.
 
-    sudo docker run --rm=true -p=9987:9987/udp -p=10011:10011 -p=30033:30033 -v=/srv/teamspeak:/data longsleep/teamspeak
+    sudo docker run --rm=true -p=9987:9987/udp -p=10011:10011 -p=30033:30033 -e LOCAL_USER_ID=9001 -v=/srv/teamspeak/data:/data longsleep/teamspeak
 
 This runs docker-teamspeak in a temporary container in foreground. To stop it,
 just press CTRL+C.
@@ -47,10 +49,11 @@ Restart=always
 ExecStartPre=-/usr/bin/docker rm teamspeak 2>&1 || true
 ExecStart=/usr/bin/docker run \
         --rm=true \
+        -e LOCAL_USER_ID=9001 \
         -p 9987:9987/udp \
         -p 10011:10011 \
         -p 30033:30033 \
-        -v /srv/teamspeak:/data \
+        -v /srv/teamspeak/data:/data \
         --name teamspeak \
         longsleep/teamspeak
 

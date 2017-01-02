@@ -10,36 +10,28 @@
 # -----------------------------------------------------------------------------
 
 # Base system.
-FROM   phusion/baseimage:0.9.19
+FROM   frolvlad/alpine-glibc:alpine-3.4
 
-# Teamspeak version to download.
-ENV    TS_VERSION 3.0.13.6
+COPY   scripts/start /start.sh
 
-# Make sure we don't get notifications we can't answer during building.
-ENV    DEBIAN_FRONTEND noninteractive
-
-# Download and install everything from the repos.
-RUN    apt-get --yes update; apt-get --yes upgrade
-RUN    apt-get --yes install curl
-RUN    apt-get --yes install bzip2
-
-# Download and install TeamSpeak 3
-RUN    curl "http://dl.4players.de/ts/releases/${TS_VERSION}/teamspeak3-server_linux_amd64-${TS_VERSION}.tar.bz2" -o /opt/teamspeak3-server_linux_amd64-${TS_VERSION}.tar.bz2
-RUN    cd /opt && tar -jxvf teamspeak3-server_linux_amd64-${TS_VERSION}.tar.bz2 && mv teamspeak3-server_linux_amd64 teamspeak && chown -R root.root /opt/teamspeak && rm teamspeak3-server_linux_amd64-${TS_VERSION}.tar.bz2
-
-# Load in all of our config files.
-RUN    mkdir /etc/service/teamspeak
-ADD    scripts/start /etc/service/teamspeak/run
-RUN    chmod 755 /etc/service/teamspeak/run
-
-# /start runs it.
+CMD    ["/start.sh"]
 EXPOSE 9987/udp
 EXPOSE 10011
 EXPOSE 30033
-
 VOLUME ["/data"]
 
-CMD ["/sbin/my_init"]
+ENV    TS_VERSION 3.0.13.6
+ENV    TS_CHECKSUM 19ccd8db5427758d972a864b70d4a1263ebb9628fcc42c3de75ba87de105d179
 
-# Clean up APT when done.
-RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+RUN chmod +x /start.sh \
+  && apk --update add curl su-exec \
+  && curl -L "http://dl.4players.de/ts/releases/${TS_VERSION}/teamspeak3-server_linux_amd64-${TS_VERSION}.tar.bz2" -o /tmp/teamspeak.tar.bz2 \
+  && if [ $(sha256sum /tmp/teamspeak.tar.bz2 | awk {'print $1'}) != ${TS_CHECKSUM} ]; then echo "Invalid checksum"; exit 1; fi \
+  && mkdir /opt \
+  && tar xjf /tmp/teamspeak.tar.bz2 -C /opt \
+  && mv /opt/teamspeak3-server_* /opt/teamspeak \
+  && chown -R root:root /opt/teamspeak \
+  && apk del curl \
+  && rm -rf \
+    /tmp/teamspeak.tar.bz2 \
+    /var/cache/apk*

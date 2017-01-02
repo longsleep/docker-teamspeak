@@ -1,10 +1,12 @@
-#!/bin/bash
+#!/bin/sh
 # -----------------------------------------------------------------------------
-# docker-teamspeak /start script
+# docker-teamspeak /start.sh script
 #
 # Authors: Isaac Bythewood, Simon Eisenmann
-# Updated: Jun 7th, 2015
+# Updated: Jan 2nd, 2017
 # -----------------------------------------------------------------------------
+
+set -ex
 
 # Checking if files exist to make sure we're backing up the database to data
 if [ ! -f /opt/teamspeak/ts3server.sqlitedb ] && [ -f /data/ts3server.sqlitedb ]
@@ -24,7 +26,15 @@ then
     ln -s /data/ts3server.sqlitedb /opt/teamspeak/ts3server.sqlitedb
 fi
 
+USER_ID=${LOCAL_USER_ID:-9001}
+
+echo "Starting with UID : $USER_ID"
+addgroup -g $USER_ID teamspeak
+adduser -u $USER_ID -G teamspeak -h /opt/teamspeak -D teamspeak
+export HOME=/opt/teamspeak
+chown teamspeak:teamspeak $HOME
+
 # Run the teamspeak server
 export LD_LIBRARY_PATH=/opt/teamspeak
 cd /opt/teamspeak
-exec ./ts3server logpath=/data/logs/
+exec su-exec teamspeak ./ts3server logpath=/data/logs/
