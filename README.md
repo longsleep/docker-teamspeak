@@ -5,7 +5,7 @@ help on getting started with docker see the [official getting started guide][0].
 For more information on TeamSpeak and check out it's [website][1].
 
 This work was forked from https://github.com/overshard/docker-teamspeak to
-get support for latest Docker changes.
+get support for latest Docker changes and latest Teamspeak server version.
 
 ## Building docker-teamspeak
 
@@ -23,46 +23,44 @@ Running the first time will set your port to a static port of your choice so
 that you can easily map a proxy to. If this is the only thing running on your
 system you can map the ports to 9987, 10011, 30033 and no proxy is needed. i.e.
 `-p=9987:9987/udp  -p=10011:10011 -p=30033:30033` Also be sure your mounted
-directory on your host machine is already created before running
-`mkdir -p /mnt/teamspeak`.
+directory on your host machine is already created before (`mkdir -p /srv/teamspeak`).
 
-    sudo docker run --rm=true -p=9987:9987/udp -p=10011:10011 -p=30033:30033 -v=/mnt/teamspeak:/data longsleep/teamspeak
+    sudo docker run --rm=true -p=9987:9987/udp -p=10011:10011 -p=30033:30033 -v=/srv/teamspeak:/data longsleep/teamspeak
 
 This runs docker-teamspeak in a temporary container in foreground. To stop it,
 just press CTRL+C.
 
-## Run with upstart
+## Run with systemd
 
-I recommend to run the docker container with upstart or systemd. Use the
-following init file with upstart and put it into `/etc/init/teamspeak-container`.
+I recommend to run the docker container with systemd. Use the following service
+file as `/etc/systemd/system/docker.teamspeak.service`.
 
 ```
-description "Teamspeak container"
+[Unit]
+Description=Teamspeak Container
+After=docker.service
+Requires=docker.service
 
-start on filesystem and started docker
-stop on stopping docker
+[Service]
+TimeoutStartSec=0
+Restart=always
+ExecStartPre=-/usr/bin/docker rm teamspeak 2>&1 || true
+ExecStart=/usr/bin/docker run \
+        --rm=true \
+        -p 9987:9987/udp \
+        -p 10011:10011 \
+        -p 30033:30033 \
+        -v /srv/teamspeak:/data \
+        --name teamspeak \
+        longsleep/teamspeak
 
-respawn
-
-pre-start script
-docker rm teamspeak >/dev/null 2>&1 || true
-end script
-
-script
-exec docker run \
-	--rm=true \
-	-p 9987:9987/udp \
-	-p 10011:10011 \
-	-p 30033:30033 \
-	-v /mnt/teamspeak:/data \
-	--name teamspeak \
-	longsleep/teamspeak
-end script
+[Install]
+WantedBy=multi-user.target
 ```
 
 The teamspeak container supports full signal integration, meaning start, stop
-and reload commands work just fine. Start docker-teamspeak with upstart by
-`start teamspeak-container`.
+and reload commands work just fine. Start docker-teamspeak with systemd by
+`systemctl start docker.teamspeak`.
 
 
 ## Server Admin Token
@@ -80,4 +78,3 @@ files for ServerAdmin privilege key created and use that token on first connect.
 
 [0]: http://www.docker.io/gettingstarted/
 [1]: http://teamspeak.com/
-
