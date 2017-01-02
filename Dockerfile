@@ -5,12 +5,12 @@
 # (http://teamspeak.com/).
 #
 # Authors: Isaac Bythewood, Simon Eisenmann
-# Updated: Nov 7th, 2015
+# Updated: Jan 2nd, 2017
 # Require: Docker (http://www.docker.io/)
 # -----------------------------------------------------------------------------
 
-# Base system is the LTS version of Ubuntu.
-FROM   ubuntu:14.04
+# Base system.
+FROM   phusion/baseimage:0.9.19
 
 # Teamspeak version to download.
 ENV    TS_VERSION 3.0.13.6
@@ -27,10 +27,9 @@ RUN    curl "http://dl.4players.de/ts/releases/${TS_VERSION}/teamspeak3-server_l
 RUN    cd /opt && tar -zxvf teamspeak3-server_linux-amd64-${TS_VERSION}.tar.gz && mv teamspeak3-server_linux-amd64 teamspeak && chown -R root.root /opt/teamspeak && rm teamspeak3-server_linux-amd64-${TS_VERSION}.tar.gz
 
 # Load in all of our config files.
-ADD    ./scripts/start /start
-
-# Fix all permissions
-RUN    chmod +x /start
+RUN    mkdir /etc/service/teamspeak
+ADD    scripts/start /etc/service/teamspeak/run
+RUN    chmod 755 /etc/service/teamspeak/run
 
 # /start runs it.
 EXPOSE 9987/udp
@@ -39,4 +38,7 @@ EXPOSE 30033
 
 VOLUME ["/data"]
 
-ENTRYPOINT ["/start"]
+CMD ["/sbin/my_init"]
+
+# Clean up APT when done.
+RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
