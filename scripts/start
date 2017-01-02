@@ -6,7 +6,7 @@
 # Updated: Jan 2nd, 2017
 # -----------------------------------------------------------------------------
 
-set -ex
+set -e
 
 # Checking if files exist to make sure we're backing up the database to data
 if [ ! -f /opt/teamspeak/ts3server.sqlitedb ] && [ -f /data/ts3server.sqlitedb ]
