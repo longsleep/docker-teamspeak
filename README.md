@@ -46,7 +46,8 @@ Requires=docker.service
 [Service]
 TimeoutStartSec=0
 Restart=always
-ExecStartPre=-/usr/bin/docker rm teamspeak 2>&1 || true
+ExecStartPre=-/usr/bin/docker kill teamspeak
+ExecStartPre=-/usr/bin/docker rm teamspeak
 ExecStart=/usr/bin/docker run \
         --rm=true \
         -e LOCAL_USER_ID=9001 \
